@@ -183,3 +183,174 @@ source /etc/profile.d/maven.sh
 mvn -version
 ```
 </details>
+
+## Generating Maven Project
+
+### Maven repository
+![](media/maven-repository.png)
+
+### Project Object Model « pom.xml »
+POM signifie "Project Object Model". Il s'agit d'une représentation XML d'un projet Maven contenu dans un fichier nommé pom.xml.
+**Exemple**
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <packaging>jar</packaging>
+   
+  <groupId>org.codehaus.mojo</groupId>
+  <artifactId>my-project</artifactId>
+  <version>1.0</version>
+
+  <dependencies>...</dependencies>
+  <plugins> ... </plugins>
+
+  <!-- Build Settings -->
+  <build>...</build>
+  <reporting>...</reporting>
+</project>
+```
+
+### Générer une Application java de type Maven
+- Générer l’architecture du projet
+```
+mvn archetype:generate
+```
+- Choisir le code par défaut (1854)
+```
+Choose a number or apply filter (format: [groupId:]artifactId, case sensitive contains): 1854:
+Choose org.apache.maven.archetypes:maven-archetype-quickstart version:
+1: 1.0-alpha-1
+2: 1.0-alpha-2
+3: 1.0-alpha-3
+4: 1.0-alpha-4
+5: 1.0
+6: 1.1
+7: 1.3
+8: 1.4
+Choose a number: 8:
+Define value for property 'groupId': org.devops
+Define value for property 'artifactId': AppJavaMaven
+Define value for property 'version' 1.0-SNAPSHOT: :
+Define value for property 'package' org.devops: :
+Confirm properties configuration:
+groupId: org.devops
+artifactId: AppJavaMaven
+version: 1.0-SNAPSHOT
+package: org.devops
+ Y: : y
+```
+- Vérifier l’architecture du projet
+```
+[root@worker-node1 ~]# tree AppJavaMaven/
+AppJavaMaven/
+├── pom.xml
+└── src
+    ├── main
+    │   └── java
+    │       └── org
+    │           └── devops
+    │               └── App.java
+    └── test
+        └── java
+            └── org
+                └── devops
+                    └── AppTest.java
+
+```
+-	Compiler le projet
+```
+[root@worker-node1 AppJavaMaven]# mvn compile
+```
+-	Créer un package
+```
+[root@worker-node1 AppJavaMaven]# mvn package
+```
+-	Vérifier le résultat
+```
+[root@worker-node1 AppJavaMaven]# tree
+.
+├── pom.xml
+├── src
+│   ├── main
+│   │   └── java
+│   │       └── org
+│   │           └── devops
+│   │               └── App.java
+│   └── test
+│       └── java
+│           └── org
+│               └── devops
+│                   └── AppTest.java
+└── target
+    ├── AppJavaMaven-1.0-SNAPSHOT.jar
+    ├── classes
+    │   └── org
+    │       └── devops
+    │               └── App.class
+    ├── generated-sources
+    │   └── annotations
+    ├── generated-test-sources
+    │   └── test-annotations
+    ├── maven-archiver
+    │   └── pom.properties
+    ├── maven-status
+    │   └── maven-compiler-plugin
+    │       ├── compile
+    │       │   └── default-compile
+    │       │       ├── createdFiles.lst
+    │       │       └── inputFiles.lst
+    │       └── testCompile
+    │           └── default-testCompile
+    │               ├── createdFiles.lst
+    │               └── inputFiles.lst
+    ├── surefire-reports
+    │   ├── org.devops.AppTest.txt
+    │   └── TEST-org.devops.AppTest.xml
+    └── test-classes
+        └── org
+            └── devops
+                └── AppTest.class
+
+32 directories, 13 files
+```
+-	Tester le projet
+```
+[root@worker-node1 AppJavaMaven]# java -cp target/AppJavaMaven-1.0-SNAPSHOT.jar org.devops.App
+Hello World!
+```
+
+### Générer une Application Web
+-	Générer l’architecture du projet webapp
+```
+mvn archetype:generate -DarchetypeGroupId=org.apache.maven.archetypes      -DarchetypeArtifactId=maven-archetype-webapp -DarchetypeVersion=1.4
+```
+-	Vérifier l’architecture du projet
+```
+[root@worker-node1 ~]# tree webapp/
+webapp/
+├── pom.xml
+└── src
+    └── main
+        └── webapp
+            ├── index.jsp
+            └── WEB-INF
+                └── web.xml
+4 directories, 3 files
+```
+-	Ajout du plugin Jetty pour tester rapidement l’application web créée. Modifier le fichier pom.xml et ajouter la définition du plugin
+```
+...
+<plugin>
+    <groupId>org.mortbay.jetty</groupId>
+    <artifactId>maven-jetty-plugin</artifactId>
+    <version>6.1.26</version>
+</plugin>
+...
+```
+-	Exécuter le plugin Jetty 
+```
+mvn jetty:run
+```
+-	Tester l’application à partir d’un navigateur web sur le port 8080
+-	Modifier le code de la page index.jsp et vérifier les mises à jour
